@@ -4,13 +4,15 @@ FROM python:3.12-slim
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies for python-magic
+# Install system dependencies for python-magic and curl for uv installation
 RUN apt-get update && apt-get install -y \
     libmagic1 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv for faster package management
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.cargo/bin:$PATH"
 
 # Copy project files
 COPY pyproject.toml uv.lock* ./
