@@ -1,0 +1,38 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: media-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: media_db
+    volumes:
+      - media-mongo-data:/data/db
+    networks:
+      - media-network
+
+  media-api:
+    image: ivantana/media-service:latest
+    container_name: media-api
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_URL=mongodb://root:example@mongodb:27017
+      - PYTHONPATH=/app
+    depends_on:
+      - mongodb
+    volumes:
+      - ./app:/app/app:ro  # Mount source code for development
+    networks:
+      - media-network
+
+volumes:
+  media-mongo-data:
+
+networks:
+  media-network:
+    driver: bridge
